@@ -102,7 +102,6 @@ for i, submission_name in enumerate(all_tests):
         current = json.load(current_json)
 
     if reference == current:
-        print('Test passed. (%s)' % submission_name)
         success_total += 1
     else:
         print('Test failed. (%s)' % submission_name)
@@ -111,9 +110,8 @@ for i, submission_name in enumerate(all_tests):
         print('Observed results.json:')
         print(current)
         failure_total += 1
-
-    if i < len(all_tests) - 1:
-        print('\n\n')
+        if i < len(all_tests) - 1:
+            print('\n\n')
 
 print('Total of %d tests run: %d success(es) and %d failure(s).' %
       (len(all_tests), success_total, failure_total))
