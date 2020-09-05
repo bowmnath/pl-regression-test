@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -14,10 +15,6 @@ parser.add_argument('base', metavar='base directory', type=str, nargs='?',
                     help=('Directory containing externally-graded question '
                           'to test. Defaults to current working directory'))
 args = parser.parse_args()
-
-# External grader environment  TODO should not be hard-coded
-docker_image = 'eecarrier/c-and-python-v2'
-entrypoint = '/grade/serverFilesCourse/python_autograder/run.sh'
 
 # Choose regression test to run
 submission_name = 'sample'  # TODO
@@ -44,6 +41,13 @@ results_dir = os.path.join(base_results_dir, job_dir)
 # they do not exist
 os.makedirs(workspace_dir, exist_ok=True)
 os.makedirs(results_dir, exist_ok=True)
+
+# Read external grader environment
+info_file_name = os.path.join(base, 'info.json')
+with open(info_file_name, 'r') as info_file:
+    info = json.load(info_file)
+docker_image = info['externalGradingOptions']['image']
+entrypoint = info['externalGradingOptions']['entrypoint']
 
 # Copy local files into workspace for use by Docker
 shutil.copytree(os.path.join(base, 'tests'),
