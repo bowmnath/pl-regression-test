@@ -10,8 +10,7 @@ but that is the extent of the testing.
 
 ## Purpose
 
-Assume you have an externally-graded question in `questions/foo`.
-Whenever you make changes to the autograder,
+Whenever you make changes to an externally-graded question,
 you risk breaking current functionality.
 One way to avoid this is to keep around old submissions with known results and
 rerun them after updating the autograder.
@@ -30,7 +29,7 @@ As of this writing,
 PrairieLearn mandates the name of the code submission,
 so you must use that name for all of your code files.
 
-All of these directories containing (submission, resuts) pairs must be put in a
+All of these directories containing (submission, results) pairs must be put in a
 directory named `regression_tests` that is a subdirectory of the
 externally-graded question (`foo`, in our example).
 This is what the layout should look like:
