@@ -19,16 +19,24 @@ parser.add_argument('--tests', nargs='+', metavar='test', dest='test_list',
                     help=('Directories containing specific tests to run. '
                           'If argument is omitted, all tests in '
                           'question/regression_tests will be run'))
+parser.add_argument('--course-root', dest='course_root', metavar='course_root',
+                    help=('Absolute path to root directory of PrairieLearn '
+                          'repository. Defaults to two levels above directory '
+                          'containing question'))
 args = parser.parse_args()
 
 # Set up path names
-course_root = '/home/nate/452/452-pl/'  # TODO
+question_dir = os.path.abspath(args.question)
+regression_dir = os.path.join(question_dir, 'regression_tests')
+if args.course_root is not None:
+    course_root = args.course_root
+else:
+    course_root = os.path.join(question_dir, os.pardir, os.pardir)
+    course_root = os.path.abspath(course_root)
 server_files_course = os.path.join(course_root, 'serverFilesCourse')
 jobs_dir = os.path.join(course_root, 'pl_tests')
 base_workspace_dir = os.path.join(jobs_dir, 'ag_workspace')
 base_results_dir = os.path.join(jobs_dir, 'ag_test_results')
-question_dir = os.path.abspath(args.question)
-regression_dir = os.path.join(question_dir, 'regression_tests')
 
 # Create base directories
 os.makedirs(base_workspace_dir, exist_ok=True)
