@@ -21,7 +21,13 @@ base_workspace_dir = os.path.join(regression_dir, 'ag_workspace')
 base_results_dir = os.path.join(regression_dir, 'ag_test_results')
 submission_dir = os.path.join(regression_dir, 'submissions')
 
-job_dir = 'run1'  # TODO
+# Determine available job_dir
+jobs_in_workspace = os.listdir(base_workspace_dir)
+jobs_in_results = os.listdir(base_results_dir)
+max_job_in_workspace = max([int(s[3:]) for s in jobs_in_workspace])
+max_job_in_results = max([int(s[3:]) for s in jobs_in_results])
+job_dir = 'run%d' % (max(max_job_in_workspace, max_job_in_results) + 1)
+
 workspace_dir = os.path.join(base_workspace_dir, job_dir)
 results_dir = os.path.join(base_results_dir, job_dir)
 
