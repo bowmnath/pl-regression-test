@@ -47,7 +47,9 @@ else:
     all_tests = os.listdir(regression_dir)
 
 # Run regression tests
-for submission_name in all_tests:
+success_total = 0
+failure_total = 0
+for i, submission_name in enumerate(all_tests):
 
     submission_dir = os.path.join(regression_dir, submission_name)
 
@@ -101,9 +103,17 @@ for submission_name in all_tests:
 
     if reference == current:
         print('Test passed.')
+        success_total += 1
     else:
         print('Test failed.')
         print('Expected results.json:')
         print(reference)
         print('Observed results.json:')
         print(current)
+        failure_total += 1
+
+    if i < len(all_tests) - 1:
+        print('\n\n')
+
+print('Total of %d tests run: %d success(es) and %d failure(s).' %
+      (len(all_tests), success_total, failure_total))
