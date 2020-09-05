@@ -53,7 +53,7 @@ else:
 success_total = 0
 failure_total = 0
 timeout_total = 0
-for i, submission_name in enumerate(all_tests):
+for submission_name in all_tests:
 
     submission_dir = os.path.join(regression_dir, submission_name)
 
@@ -121,8 +121,7 @@ for i, submission_name in enumerate(all_tests):
         print('Observed results.json:')
         print(current)
         failure_total += 1
-        if i < len(all_tests) - 1:
-            print('\n\n')
+        print('\n\n')
 
 print('Total of %d tests run: %d success(es) and %d failure(s).' %
       (len(all_tests), success_total, failure_total))
