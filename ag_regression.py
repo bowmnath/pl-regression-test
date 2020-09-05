@@ -10,6 +10,38 @@ from subprocess import TimeoutExpired
 
 
 
+def find_course_root(question_dir):
+    '''
+    Search for root of PL repository containing `question_dir`.
+    Root directory is assumed to contain `infoCourse.json`.
+
+    Arguments:
+    question_dir (str): absolute path of directory containing question
+
+    Returns:
+    course_root (str): absolute path of root directory of PL repository
+
+    Raises:
+    FileNotFound: If root directory is not found in MAX_LEVELS, assume
+                  something went wrong
+    '''
+    MAX_LEVELS = 10
+
+    course_root = None
+    levels_up = 0
+    search_root = question_dir
+    while course_root is None and levels_up < MAX_LEVELS:
+        search_root = os.path.join(search_root, os.pardir)
+        if 'infoCourse.json' in os.listdir(search_root):
+            course_root = os.path.abspath(search_root)
+        levels_up += 1
+
+    if course_root is None:
+        raise FileNotFoundError('Could not find root of course repository')
+
+    return course_root
+
+
 parser = argparse.ArgumentParser(description=('Regression tests for PL '
                                               'externally-graded questions'))
 parser.add_argument('question', type=str, nargs='?', default=os.getcwd(),
@@ -20,9 +52,9 @@ parser.add_argument('--tests', nargs='+', metavar='test', dest='test_list',
                           'If argument is omitted, all tests in '
                           'question/regression_tests will be run'))
 parser.add_argument('--course-root', dest='course_root', metavar='course_root',
-                    help=('Absolute path to root directory of PrairieLearn '
-                          'repository. Defaults to two levels above directory '
-                          'containing question'))
+                    help=('Absolute path to root directory of course '
+                          'repository. If argument is not passed, script will '
+                          'search for course root directory automatically'))
 args = parser.parse_args()
 
 # Set up path names
@@ -31,8 +63,7 @@ regression_dir = os.path.join(question_dir, 'regression_tests')
 if args.course_root is not None:
     course_root = args.course_root
 else:
-    course_root = os.path.join(question_dir, os.pardir, os.pardir)
-    course_root = os.path.abspath(course_root)
+    course_root = find_course_root(question_dir)
 server_files_course = os.path.join(course_root, 'serverFilesCourse')
 jobs_dir = os.path.join(course_root, 'pl_tests')
 base_workspace_dir = os.path.join(jobs_dir, 'ag_workspace')
