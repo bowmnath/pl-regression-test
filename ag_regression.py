@@ -10,14 +10,13 @@ import subprocess
 
 parser = argparse.ArgumentParser(description=('Regression tests for PL '
                                               'externally-graded questions'))
-parser.add_argument('base', metavar='base directory', type=str, nargs='?',
-                    default=os.getcwd(),
+parser.add_argument('question', type=str, nargs='?', default=os.getcwd(),
                     help=('Directory containing externally-graded question '
                           'to test. Defaults to current working directory'))
 parser.add_argument('--tests', nargs='+', metavar='test', dest='test_list',
                     help=('Directories containing specific tests to run. '
                           'If argument is omitted, all tests in '
-                          'base/regression_tests will be run'))
+                          'question/regression_tests will be run'))
 args = parser.parse_args()
 
 # Set up path names
@@ -26,15 +25,15 @@ server_files_course = os.path.join(course_root, 'serverFilesCourse')
 jobs_dir = os.path.join(course_root, 'pl_tests')
 base_workspace_dir = os.path.join(jobs_dir, 'ag_workspace')
 base_results_dir = os.path.join(jobs_dir, 'ag_test_results')
-base = os.path.abspath(args.base)
-regression_dir = os.path.join(base, 'regression_tests')
+question_dir = os.path.abspath(args.question)
+regression_dir = os.path.join(question_dir, 'regression_tests')
 
 # Create base directories
 os.makedirs(base_workspace_dir, exist_ok=True)
 os.makedirs(base_results_dir, exist_ok=True)
 
 # Read external grader environment
-info_file_name = os.path.join(base, 'info.json')
+info_file_name = os.path.join(question_dir, 'info.json')
 with open(info_file_name, 'r') as info_file:
     info = json.load(info_file)
 docker_image = info['externalGradingOptions']['image']
@@ -71,7 +70,7 @@ for submission_name in all_tests:
     os.makedirs(server_files_workspace)
 
     # Copy local files into workspace for use by Docker
-    shutil.copytree(os.path.join(base, 'tests'),
+    shutil.copytree(os.path.join(question_dir, 'tests'),
                     os.path.join(workspace_dir, 'tests'))
     shutil.copytree(submission_dir,
                     os.path.join(workspace_dir, 'student'))
