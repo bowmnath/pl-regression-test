@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
 import shutil
 import subprocess
 
 
+
+parser = argparse.ArgumentParser(description=('Regression tests for PL '
+                                              'externally-graded questions'))
+parser.add_argument('base', metavar='base directory', type=str, nargs='?',
+                    default=os.getcwd(),
+                    help=('Directory containing externally-graded question '
+                          'to test. Defaults to current working directory'))
+args = parser.parse_args()
 
 # External grader environment  TODO should not be hard-coded
 docker_image = 'eecarrier/c-and-python-v2'
@@ -15,7 +24,7 @@ submission_name = 'sample'  # TODO
 
 # Set up path names
 course_root = '/home/nate/452/452-pl/'  # TODO
-base = os.getcwd()  # TODO accept an argument for base -- default to cwd
+base = os.path.abspath(args.base)
 regression_dir = os.path.join(base, 'regression_tests')
 base_workspace_dir = os.path.join(regression_dir, 'ag_workspace')
 base_results_dir = os.path.join(regression_dir, 'ag_test_results')
