@@ -6,6 +6,8 @@ import os
 import shutil
 import subprocess
 
+from subprocess import TimeoutExpired
+
 
 
 parser = argparse.ArgumentParser(description=('Regression tests for PL '
@@ -39,6 +41,7 @@ with open(info_file_name, 'r') as info_file:
 docker_image = info['externalGradingOptions']['image']
 entrypoint = info['externalGradingOptions']['entrypoint']
 server_files_list = info['externalGradingOptions'].get('serverFilesCourse', [])
+timeout = int(info['externalGradingOptions'].get('timeout', 30))
 
 # Choose regression test(s) to run
 if args.test_list is not None:
@@ -49,6 +52,7 @@ else:
 # Run regression tests
 success_total = 0
 failure_total = 0
+timeout_total = 0
 for i, submission_name in enumerate(all_tests):
 
     submission_dir = os.path.join(regression_dir, submission_name)
@@ -89,8 +93,15 @@ for i, submission_name in enumerate(all_tests):
                       '-v', '%s:/grade/results' % results_dir,
                       docker_image, entrypoint]
 
-    subprocess.run(docker_command, universal_newlines=True, capture_output=True,
-                   check=True)
+    try:
+        subprocess.run(docker_command, universal_newlines=True, capture_output=True,
+                       check=True, timeout=timeout)
+    except TimeoutExpired:
+        print('Process timed out (%s).' % submission_name)
+        print('This may or may not be a failure.')
+        print('\n\n')
+        timeout_total += 1
+        continue
 
     # Compare json output to expected output
     reference_json_name = os.path.join(submission_dir, 'results.json')
@@ -115,3 +126,5 @@ for i, submission_name in enumerate(all_tests):
 
 print('Total of %d tests run: %d success(es) and %d failure(s).' %
       (len(all_tests), success_total, failure_total))
+if timeout_total > 0:
+    print('%d process(es) timed out.' % timeout_total)
