@@ -65,17 +65,12 @@ tests
 (such as `expect-to-fail` and `full-credit` in the above example)
 to run only those tests.
 
-By default, the script assumes the course root is two directories above the
-question.
-This will work if your questions are stored "flat" in the questions directory.
-If the questions themselves are nested deeper,
-you will need to pass the `--course_root` argument with the absolute path of
+The script should find the course root automatically.
+If it does not,
+you can pass the `--course_root` argument with the absolute path of
 your course root.
 The root directory of your PrairieLearn course is the one with
 `infoCourse.json`.
-To avoid needing to type this every time,
-you may want to make another script for a particular course that calls this
-script with the `--course-root` argument hard-coded.
 
 That's it!
 
