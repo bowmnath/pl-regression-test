@@ -27,6 +27,7 @@ base_workspace_dir = os.path.join(jobs_dir, 'ag_workspace')
 base_results_dir = os.path.join(jobs_dir, 'ag_test_results')
 base = os.path.abspath(args.base)
 regression_dir = os.path.join(base, 'regression_tests')
+submission_dir = os.path.join(regression_dir, submission_name)
 
 # Create base directories
 os.makedirs(base_workspace_dir, exist_ok=True)
@@ -60,7 +61,7 @@ server_files_list = info['externalGradingOptions'].get('serverFilesCourse', [])
 # Copy local files into workspace for use by Docker
 shutil.copytree(os.path.join(base, 'tests'),
                 os.path.join(workspace_dir, 'tests'))
-shutil.copytree(os.path.join(regression_dir, submission_name),
+shutil.copytree(submission_dir,
                 os.path.join(workspace_dir, 'student'))
 for server_file_rel in server_files_list:
     server_file_abs = os.path.join(server_files_course, server_file_rel)
@@ -77,3 +78,21 @@ docker_command = ['docker', 'run', '-it', '--rm',
 
 subprocess.run(docker_command, universal_newlines=True, capture_output=True,
                check=True)
+
+# Compare json output to expected output
+reference_json_name = os.path.join(submission_dir, 'results.json')
+current_json_name = os.path.join(results_dir, 'results.json')
+
+with open(reference_json_name, 'r') as reference_json:
+    reference = json.load(reference_json)
+with open(current_json_name, 'r') as current_json:
+    current = json.load(current_json)
+
+if reference == current:
+    print('Test passed.')
+else:
+    print('Test failed.')
+    print('Expected results.json:')
+    print(reference)
+    print('Observed results.json:')
+    print(current)
