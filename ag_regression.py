@@ -22,11 +22,15 @@ submission_name = 'sample'  # TODO
 # Set up path names
 course_root = '/home/nate/452/452-pl/'  # TODO
 server_files_course = os.path.join(course_root, 'serverFilesCourse')
+jobs_dir = os.path.join(course_root, 'pl_tests')
+base_workspace_dir = os.path.join(jobs_dir, 'ag_workspace')
+base_results_dir = os.path.join(jobs_dir, 'ag_test_results')
 base = os.path.abspath(args.base)
 regression_dir = os.path.join(base, 'regression_tests')
-base_workspace_dir = os.path.join(regression_dir, 'ag_workspace')
-base_results_dir = os.path.join(regression_dir, 'ag_test_results')
-submission_dir = os.path.join(regression_dir, 'submissions')
+
+# Create base directories
+os.makedirs(base_workspace_dir, exist_ok=True)
+os.makedirs(base_results_dir, exist_ok=True)
 
 # Determine available job_dir
 jobs_in_workspace = os.listdir(base_workspace_dir)
@@ -41,8 +45,8 @@ server_files_workspace = os.path.join(workspace_dir, 'serverFilesCourse')
 
 # Create workspace and results directories, creating base directories if
 # they do not exist
-os.makedirs(workspace_dir, exist_ok=True)
-os.makedirs(results_dir, exist_ok=True)
+os.makedirs(workspace_dir)
+os.makedirs(results_dir)
 os.makedirs(server_files_workspace)
 
 # Read external grader environment
@@ -56,7 +60,7 @@ server_files_list = info['externalGradingOptions'].get('serverFilesCourse', [])
 # Copy local files into workspace for use by Docker
 shutil.copytree(os.path.join(base, 'tests'),
                 os.path.join(workspace_dir, 'tests'))
-shutil.copytree(os.path.join(submission_dir, submission_name),
+shutil.copytree(os.path.join(regression_dir, submission_name),
                 os.path.join(workspace_dir, 'student'))
 for server_file_rel in server_files_list:
     server_file_abs = os.path.join(server_files_course, server_file_rel)
