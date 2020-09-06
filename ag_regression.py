@@ -10,6 +10,9 @@ from subprocess import TimeoutExpired
 
 
 
+PL_TIMEOUT_RESULT = json.loads('{"succeeded": false, "reason": "timeout"}')
+
+
 def find_course_root(question_dir):
     '''
     Search for root of PL repository containing `question_dir`.
@@ -91,7 +94,6 @@ else:
 # Run regression tests
 success_total = 0
 failure_total = 0
-timeout_total = 0
 for submission_name in all_tests:
 
     submission_dir = os.path.join(regression_dir, submission_name)
@@ -132,24 +134,25 @@ for submission_name in all_tests:
                       '-v', '%s:/grade/results' % results_dir,
                       docker_image, entrypoint]
 
+    timed_out = False
     try:
         subprocess.run(docker_command, universal_newlines=True, capture_output=True,
                        check=True, timeout=timeout)
     except TimeoutExpired:
-        print('Process timed out (%s).' % submission_name)
-        print('This may or may not be a failure.')
-        print('\n\n')
-        timeout_total += 1
-        continue
+        timed_out = True
 
     # Compare json output to expected output
     reference_json_name = os.path.join(submission_dir, 'results.json')
-    current_json_name = os.path.join(results_dir, 'results.json')
-
     with open(reference_json_name, 'r') as reference_json:
         reference = json.load(reference_json)
-    with open(current_json_name, 'r') as current_json:
-        current = json.load(current_json)
+
+    if timed_out:
+        # Need dummy result because no results.json is written
+        current = PL_TIMEOUT_RESULT
+    else:
+        current_json_name = os.path.join(results_dir, 'results.json')
+        with open(current_json_name, 'r') as current_json:
+            current = json.load(current_json)
 
     if reference == current:
         success_total += 1
@@ -164,5 +167,3 @@ for submission_name in all_tests:
 
 print('Total of %d tests run: %d success(es) and %d failure(s).' %
       (len(all_tests), success_total, failure_total))
-if timeout_total > 0:
-    print('%d process(es) timed out.' % timeout_total)
