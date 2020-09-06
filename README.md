@@ -74,6 +74,25 @@ The root directory of your PrairieLearn course is the one with
 
 That's it!
 
+## What if I expect a test to time out?
+
+PrairieLearn does not create a `results.json` file after a test times out.
+To indiciate an expected timeout,
+add a `results.json` to the test directory that looks like this:
+
+```
+{"succeeded": false, "reason": "timeout"}
+```
+
+If the corresponding test times out
+(using the timeout from `info.json`),
+then the regression test will be considered to have passed.
+Otherwise, the test will be considered to have failed.
+
+**Note:** Currently, whenever a test times out,
+the spacing of the terminal output for all later commands will be incorrect.
+The only way I have found to fix this is by closing the terminal.
+
 ## What does the output look like?
 
 Any time there is a mismatch between the stored results and the results
